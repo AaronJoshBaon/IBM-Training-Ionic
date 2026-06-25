@@ -16,8 +16,8 @@
         <h1>Task Counter</h1>
 
         <div class="input-row">
-          <input v-model="newTaskName" @keyup.enter="addTask" placeholder="Enter a new task" />
-          <ion-button @click="addTask">
+          <input v-model="newTaskName" @keyup.enter="handleAdd" placeholder="Enter a new task" />
+          <ion-button @click="handleAdd">
             <ion-icon :icon="addOutline" color="light"></ion-icon>
           </ion-button>
         </div>
@@ -42,7 +42,7 @@
 
         <ion-List v-else class="task-list">
           <ion-item v-for="task in filteredTasks" :key="task.id">
-            <ion-checkbox slot="start" @click="toggleTask(task.id)"/>
+            <ion-checkbox slot="start" :checked="task.done" @ionChange="toggleTask(task.id)"/>
             <IonLabel :class="{ done: task.done }">
               {{ task.name }}
             </IonLabel>
@@ -54,17 +54,21 @@
   </ion-page>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonList, IonButton, IonIcon } from '@ionic/vue';
 import { addOutline, trashOutline } from 'ionicons/icons';
 import { ref, computed } from 'vue'
+import { storeToRefs } from 'pinia'
+
+import { useTaskStore } from '@/stores/taskStore'
 
 const newTaskName = ref("")
-const idCounter = ref(0)
-
-const tasks = ref([]) 
-
 const selectedFilter = ref("all")
+
+const taskStore = useTaskStore()
+const { tasks, totalCount, doneCount, pendingCount } = storeToRefs(taskStore)
+const { addTask, toggleTask, removeTask } = taskStore
+
 const filteredTasks = computed(() => {
   return tasks.value.filter(t => {
     if(selectedFilter.value === "all") return t;
@@ -73,25 +77,10 @@ const filteredTasks = computed(() => {
   })
 })
 
-const totalCount  = computed(() => tasks.value.length);
-const doneCount   = computed(() => tasks.value.filter(t => t.done).length);
-const pendingCount = computed(() => tasks.value.filter(t => !t.done).length);
-
-function addTask() {
+function handleAdd() {
   if(newTaskName.value.trim().length <= 0) return
-  tasks.value.push({ id: idCounter.value++, name: newTaskName.value.trim(), done: false })
+  addTask(newTaskName.value)
   newTaskName.value = ""
-}
-
-function toggleTask(id) {
-  const task = tasks.value.find(t => t.id === id);
-  if (task) {
-    task.done = !task.done;
-  }
-}
-
-function removeTask(id) {
-  tasks.value = tasks.value.filter(t => t.id !== id);
 }
 </script>
 

@@ -4,6 +4,14 @@
   </ion-app>
 </template>
 
-<script setup lang="ts">
+<script setup>
+import { onMounted } from 'vue'
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
+import { useTaskStore } from '@/stores/taskStore'
+
+const taskStore = useTaskStore()
+
+onMounted(() => {
+  taskStore.loadTasks();
+})
 </script>

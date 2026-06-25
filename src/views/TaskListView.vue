@@ -32,14 +32,18 @@
           >
             <IonCheckbox
               slot="start"
-              v-model="task.done"
+              :checked="task.done"
+              @ionChange="toggleTask(task.id)"
             />
+
+            <IonImg v-if="task.photo" :src="task.photo" style="width: 120px; height: 120px;"/>
 
             <IonLabel :class="{ done: task.done }">
               {{ task.name }}
             </IonLabel>
 
             <IonButton
+              slot="end"
               fill="clear"
               @click="openTask(task.id)"
             >
@@ -82,7 +86,8 @@ import {
   IonCard,
   IonCardContent,
   IonText,
-  IonIcon
+  IonIcon,
+  IonImg
 } from '@ionic/vue'
 import { addOutline, trashOutline } from 'ionicons/icons';
 import { useRouter } from 'vue-router'
@@ -96,7 +101,7 @@ const taskStore = useTaskStore()
 const { tasks, doneCount, pendingCount, totalCount } =
   storeToRefs(taskStore)
 
-const { addTask, removeTask } = taskStore
+const { addTask, removeTask, toggleTask } = taskStore
 
 const newTaskName = ref('')
 
